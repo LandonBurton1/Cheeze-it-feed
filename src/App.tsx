@@ -1,122 +1,128 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+// Where we put inputs
+import {
+  Badge,
+  Box,
+  Button,
+  Container,
+  Heading,
+  HStack,
+  Input,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import tweetsData from "./data/tweets.json";
+import type { Tweet } from "./types/Tweet";
+import {useState} from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [tweets, setTweets] = useState<Tweet[]>(tweetsData as Tweet[]);
+
+  const [input, setInput] = useState("");
+
+  const handleYapClick = () => {
+    if(!input.trim()) return;
+    const newTweet: Tweet = {
+      id: Date.now(),
+      name: "King Bob",
+      username: "@kingbob",
+      createdAt: new Date().toISOString(),
+      text: input.trim(),
+      likes: 0,
+      replies: 0,
+      tag: "Sigma"
+    };
+    setTweets([newTweet, ...tweets]);
+    setInput("");
+  };
+  // Save the current time once during this render.
+  const currentTime = new Date().toISOString();
+
+  // Helper function that turns a date into "now", "2m", "3h", or "2d".
+  const timeAgo = (iso?: string) => {
+    if (!iso) return "now";
+    const diff = new Date(currentTime).getTime() - new Date(iso).getTime();
+    const sec = Math.floor(diff / 1000);
+    if (sec < 60) return "now";
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `${min}m`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}h`;
+    const day = Math.floor(hr / 24);
+    return `${day}d`;
+  };
+
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Box bg="gray.900" minH="100vh" py={8}>
+      <Container maxW="650px">
+        <VStack gap={5} align="stretch">
+          <Box bg="gray.800" p={6} borderRadius="2xl" boxShadow="md">
+            <Heading size="lg" color="white">
+              Bird Feed 🐦
+            </Heading>
+            <Text color="gray.400" mt={2}>
+              A simple Twitter-style homepage built with React and Chakra UI.
+            </Text>
+          </Box>
 
-      <div className="ticks"></div>
+          <Box bg="gray.800" p={5} borderRadius="2xl" boxShadow="md">
+            <VStack gap={3} align="stretch">
+              <Text fontWeight="bold" color="white">
+                Create a post
+              </Text>
+              <Input
+                placeholder="What's happening?"
+                bg="gray.700"
+                borderColor="gray.600"
+                color="white"
+                value={input}
+                onChange={(userInput) => setInput(userInput.target.value)}
+              />
+              <Button alignSelf="flex-end" bg="blue.500" color="white" onClick={handleYapClick}>
+                Yap
+              </Button>
+            </VStack>
+          </Box>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          {tweets.map((tweet) => (
+            <Box
+              key={tweet.username}
+              bg="gray.800"
+              p={5}
+              borderRadius="2xl"
+              boxShadow="md"
+              border="1px solid"
+              borderColor="gray.700"
+            >
+              <VStack align="stretch" gap={3}>
+                <HStack justify="space-between" align="start">
+                  <Box>
+                    <HStack>
+                      <Text fontWeight="bold" color="white">
+                        {tweet.name}
+                      </Text>
+                      <Badge colorPalette="blue">{tweet.tag}</Badge>
+                    </HStack>
+                    <Text color="gray.400" fontSize="sm">
+                      {tweet.username} · {timeAgo(tweet.createdAt)}
+                    </Text>
+                  </Box>
+                </HStack>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+                <Text color="white">{tweet.text}</Text>
+
+                <HStack gap={6} color="gray.400" fontSize="sm">
+                  <Text>💬 {tweet.replies}</Text>
+                  <Text>❤️ {tweet.likes}</Text>
+                  <Text>🔁 Share</Text>
+                </HStack>
+              </VStack>
+            </Box>
+          ))}
+        </VStack>
+      </Container>
+    </Box>
+  );
 }
 
-export default App
+export default App;
