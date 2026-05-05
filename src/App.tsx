@@ -10,14 +10,30 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import tweetsData from "./data/tweets.json";
 import type { Tweet } from "./types/Tweet";
-import {useState} from "react";
+import {useState, useEffect} from "react";
+import { supabase } from "./utils/supabase";
 
 function App() {
-  const [tweets, setTweets] = useState<Tweet[]>(tweetsData as Tweet[]);
+  const [tweets, setTweets] = useState<Tweet[]>([]);
+
+  useEffect(() => {
+  async function load() {
+    const { data, error } = await supabase
+      .from("tweets")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) console.error(error);
+    else setTweets(data || []);
+  }
+
+  load();
+}, []);
 
   const [input, setInput] = useState("");
+
+  
 
   const handleYapClick = () => {
     if(!input.trim()) return;
@@ -58,7 +74,7 @@ function App() {
         <VStack gap={5} align="stretch">
           <Box bg="gray.800" p={6} borderRadius="2xl" boxShadow="md">
             <Heading size="lg" color="white">
-              Bird Feed 🐦
+              Cheeze It Feed
             </Heading>
             <Text color="gray.400" mt={2}>
               A simple Twitter-style homepage built with React and Chakra UI.
